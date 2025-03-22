@@ -44,11 +44,11 @@ forge create \
   --private-key $PRIVATE_KEY \
   --legacy \
   --gas-price 1000 \
-  src/HelloWorld.sol:HelloWorld --broadcast
+  foundry/src/HelloWorld.sol:HelloWorld --broadcast
 
-export DEPLOYED_TO=0xDa7410efd68ea8C0b24cb89816585D34E5Bd93Df
+export DEPLOYED_TO=0x9609224e090006aAF3335D53DFd8A41eAB760B3F
 cast call $DEPLOYED_TO "greeting()(string)" --rpc-url $RPC_URL
-cast send $DEPLOYED_TO "setGreeting(string)" "Hello, Y'all" --private-key $PRIVATE_KEY --rpc-url $RPC_URL
+cast send $DEPLOYED_TO "setGreeting(string)" "Hello, Y'all" --private-key $PRIVATE_KEY   --gas-price 1000 --rpc-url $RPC_URL
 
 cast send $DEPLOYED_TO "setGreeting(string)" "Hello, Y'all" \
   --private-key $PRIVATE_KEY --rpc-url $RPC_URL \
@@ -56,9 +56,9 @@ cast send $DEPLOYED_TO "setGreeting(string)" "Hello, Y'all" \
   
 cast call $DEPLOYED_TO "greeting()(string)" --rpc-url $RPC_URL
 
-export ADRESS_2=0xa61464658AfeAf65CccaaFD3a512b69A83B77618
-cast send --rpc-url $RPC_URL --private-key $PRIVATE_KEY $ADRESS_2 --value 1ether
-cast send --rpc-url $RPC_URL --private-key $PRIVATE_KEY $ADRESS_2 \ 
+export ADDRESS_2=0xa61464658AfeAf65CccaaFD3a512b69A83B77618
+cast send --rpc-url $RPC_URL --private-key $PRIVATE_KEY $ADDRESS_2 --value 1ether
+cast send --rpc-url $RPC_URL --private-key $PRIVATE_KEY $ADDRESS_2 \ 
   --gas-price 1000 --value 1ether 
 ```
 
@@ -72,8 +72,7 @@ forge create \
   foundry/src/AlephGameState.sol:AlephGameState \
   --constructor-args 10000000000000000 1100000000000000000 
 
-export DEPLOYED_TO=0xd90d56f99f3F70c990B634b30Ca9FE83956E8A05
 Deployer: 0x36615Cf349d7F6344891B1e7CA7C72883F5dc049
-Transaction hash: 0xbfb75910b857f3d4d109fe96a50262c53a7d4a56854dd569cfc7e92431b9a028
+export DEPLOYED_TO=0xDa7410efd68ea8C0b24cb89816585D34E5Bd93Df
+Transaction hash: 0x4856b99d0c960351a35eb43412f31f095c1babc6949e8aa0c549b8dc42f46944
 ```
-

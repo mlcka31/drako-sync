@@ -52,7 +52,7 @@ contract AlephGameState {
     }
 
     // Setter for AI agent address; callable only by admin.
-    function initGame(address _aiAgentAddress) external onlyAdmin {
+    function initGame(address _aiAgentAddress) /*external onlyAdmin*/ {
         aiAgentAddress = _aiAgentAddress;
         emit AIAgentSetAddress(_aiAgentAddress);
         gameState = GameState.UserAction;
@@ -68,7 +68,8 @@ contract AlephGameState {
             messagePrize,
             msg.sender,
             _content,
-            block.timestamp));
+            block.timestamp
+        ));
         // Increase the prize pool.
         prizePool += msg.value;
         // Increase the message fee using fixed-point multiplication:
@@ -76,6 +77,8 @@ contract AlephGameState {
         messagePrize = (messagePrize * coeffIncrease) / PRECISION;
 
         emit MessageSent(msg.sender, _content, block.timestamp);
+
+        gameState = GameState.AgentAction;
     }
 
     // AI agent calls this function to reply.
@@ -92,7 +95,6 @@ contract AlephGameState {
         ));
         // Transition the game state to Pending.
         gameState = GameState.UserAction;
-
         emit AgentReplied(_content, block.timestamp);
     }
 
