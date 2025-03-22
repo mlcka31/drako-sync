@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { ConnectBtn } from "~/components/ConnectButton";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+
 import Image from "next/image";
 import Profile from "~/components/Profile";
 
@@ -10,7 +12,7 @@ export default function HomePage() {
         <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
           Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
         </h1>
-        <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
+        <div className="z-50 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
           <ConnectBtn />
         </div>
 
@@ -24,7 +26,7 @@ export default function HomePage() {
             priority
           />
         </div>
-
+        {/* <ConnectButton /> */}
         <Profile />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
           <Link

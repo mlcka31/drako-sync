@@ -2,16 +2,20 @@
 
 import { Chain, getDefaultConfig } from "@rainbow-me/rainbowkit";
 import { cookieStorage, createStorage, http } from "wagmi";
-import { blastSepolia, bscTestnet, sepolia } from "wagmi/chains";
+import {
+  blastSepolia,
+  bscTestnet,
+  sepolia,
+  zksync,
+  zksyncSepoliaTestnet,
+} from "wagmi/chains";
+import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 
-// import { SessionProvider } from "next-auth/react";
 import "~/styles/globals.css";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const queryClient = new QueryClient();
-
-// return <QueryClientProvider client={queryClient}>...</QueryClientProvider>;
 
 import { WagmiProvider } from "wagmi";
 
@@ -21,7 +25,7 @@ type Props = {
 
 const projectId = "32e0c2400c7a431216898567498a882b";
 
-const supportedChains: Chain[] = [sepolia, bscTestnet, blastSepolia];
+const supportedChains: Chain[] = [sepolia, zksync, zksyncSepoliaTestnet];
 
 export const config = getDefaultConfig({
   appName: "WalletConnection",
@@ -37,17 +41,13 @@ export const config = getDefaultConfig({
   ),
 });
 
-// export const NextAuthProvider = ({ children }: Props) => {
-//   return <SessionProvider>{children}</SessionProvider>;
-// };
-
 const Providers = ({ children }: Props) => {
   return (
-    // <NextAuthProvider>
     <QueryClientProvider client={queryClient}>
-      <WagmiProvider config={config}>{children}</WagmiProvider>
+      <WagmiProvider config={config}>
+        <RainbowKitProvider modalSize="compact">{children}</RainbowKitProvider>
+      </WagmiProvider>
     </QueryClientProvider>
-    // </NextAuthProvider>
   );
 };
 
