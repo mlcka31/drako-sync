@@ -1,0 +1,11 @@
+services:
+  anvil:
+    image: ghcr.io/foundry-rs/foundry
+#    image: alexliao0207/zksync-foundry
+    container_name: anvil
+    environment:
+      ANVIL_IP_ADDR: "0.0.0.0"
+    working_dir: /anvil
+    ports:
+      - "8546:8545"
+    command: anvil
