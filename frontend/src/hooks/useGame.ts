@@ -60,6 +60,6 @@ export const useGame = () => {
     gameState: gameState.data && GameState[gameState.data],
     isLoading,
     isError,
-    agentAddress,
+    agentAddress: agentAddress.data,
   };
 };

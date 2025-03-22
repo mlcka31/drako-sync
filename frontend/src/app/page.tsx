@@ -70,7 +70,7 @@ export default function HomePage() {
               messages?.map((item, index) => ({
                 id: item.timestamp.toString(),
                 content: item.content,
-                role: item.sender === agentAddress.data ? "assistant" : "user",
+                role: item.sender === agentAddress ? "assistant" : "user",
                 timestamp: new Date(Number(item.timestamp)),
               })) || []
             }

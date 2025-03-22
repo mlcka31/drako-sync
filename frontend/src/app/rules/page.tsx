@@ -1,8 +1,17 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
-import { backendApp, backendAttestation, githubRepo } from "~/config";
+import {
+  backendApp,
+  backendAttestation,
+  contractAddress,
+  githubRepo,
+} from "~/config";
+import { useGame } from "~/hooks/useGame";
 
 export default function RulesPage() {
+  const { agentAddress } = useGame();
   return (
     <div className="z-100 relative min-h-screen w-full bg-[#070716] p-4 text-[#f0f0f0]">
       <div className="mx-auto max-w-4xl py-8">
@@ -93,13 +102,13 @@ export default function RulesPage() {
           <h2 className="mb-4 text-2xl font-semibold">Technology Stack</h2>
           <ul className="list-disc space-y-2 pl-6">
             <li>
-              <strong>Frontend:</strong> React, Web3.js
+              <strong>Frontend:</strong> React, Wagmi, RainbowKit
             </li>
             <li>
-              <strong>Backend:</strong> Node.js, TEE infrastructure
+              <strong>Backend:</strong> GO, TEE infrastructure on Phala.network
             </li>
             <li>
-              <strong>Blockchain:</strong> Ethereum, Solidity smart contracts
+              <strong>Blockchain:</strong> ZSync, Solidity smart contracts
             </li>
             <li>
               <strong>AI:</strong> Advanced language model running in a secure
@@ -126,7 +135,13 @@ export default function RulesPage() {
             Backend attestation
           </Link>
           <Link href={backendApp} className="text-blue-400 hover:text-blue-300">
-            Backend app
+            Agent TEE
+          </Link>
+          <Link href={"#"} className="text-blue-400 hover:text-blue-300">
+            Contract Address {contractAddress}
+          </Link>
+          <Link href={"#"} className="text-blue-400 hover:text-blue-300">
+            Agent Address: {agentAddress}
           </Link>
         </div>
       </div>
