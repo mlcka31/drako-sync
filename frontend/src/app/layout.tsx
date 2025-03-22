@@ -21,22 +21,24 @@ export default function RootLayout({
       lang="en"
       className={`${GeistSans.variable} ${superstarFont.variable} ${superstarOrigFont.variable}`}
     >
-      <body>
-        <header className="flex items-center justify-between p-4">
-          <div className="flex items-center">
-            <svg
-              className="text-primary"
-              width="120"
-              height="40"
-              viewBox="0 0 120 40"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              {/* Replace with your SVG path data */}
-              <path d="M10 10 H 90 V 90 H 10 L 10 10" fill="currentColor" />
-            </svg>
+      <body className="h-[100vh]">
+        {/* Background images with responsive handling */}
+        <div className="absolute inset-0 z-0 h-full w-full">
+          <div className="hidden h-full w-full md:block">
+            <img
+              src="/assets/web-hero-image.png"
+              alt="Background"
+              className="h-full w-full object-cover"
+            />
           </div>
-          {/* Other header elements */}
-        </header>
+          <div className="block h-full w-full md:hidden">
+            <img
+              src="/assets/mobile-hero-image.png"
+              alt="Mobile Background"
+              className="h-full w-full object-cover"
+            />
+          </div>
+        </div>
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -7,11 +7,11 @@ import {
   useChainModal,
 } from "@rainbow-me/rainbowkit";
 import { useAccount, useDisconnect } from "wagmi";
-import FigmaButton from './FigmaButton';
+import FigmaButton from "./FigmaButton";
 
 // Helper function to shorten Ethereum addresses
 const shortenAddress = (address?: string): string => {
-  if (!address) return '';
+  if (!address) return "";
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 };
 
@@ -30,22 +30,19 @@ export const ConnectBtn = () => {
 
   if (isConnected) {
     return (
-      <FigmaButton 
-        variant="outline" 
-        onClick={() => disconnect()}
-      >
+      <FigmaButton variant="outline" onClick={() => disconnect()}>
         Disconnect {shortenAddress(address)}
       </FigmaButton>
     );
   }
 
   return (
-    <FigmaButton 
-      variant="primary" 
+    <FigmaButton
+      variant="primary"
       onClick={() => openConnectModal && openConnectModal()}
       disabled={isConnecting}
     >
-      {isConnecting ? "Connecting..." : "Connect Wallet"}
+      {isConnecting ? "Connecting..." : "Connect"}
     </FigmaButton>
   );
 };

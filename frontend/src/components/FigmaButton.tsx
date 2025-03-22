@@ -46,10 +46,7 @@ const FigmaButton: React.FC<FigmaButtonProps> = ({
   ...props
 }) => {
   return (
-    <button
-      className={buttonVariants({ variant, size, fullWidth, className })}
-      {...props}
-    >
+    <button className={`rounded-lg bg-[#00F2FF33] px-3 py-2`} {...props}>
       {children}
     </button>
   );

@@ -11,6 +11,9 @@ import { useState } from "react";
 import FigmaButton from "~/components/FigmaButton";
 import Navbar from "~/components/Navbar";
 import Chat from "~/components/Chat";
+import { useAccount } from "wagmi";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { GameState } from "~/types/GameState";
 
 export default function HomePage() {
   const [isStarted, setIsStarted] = useState(false);
@@ -24,32 +27,22 @@ export default function HomePage() {
     agentAddress,
     sendMessage,
   } = useGame();
+
+  const { address } = useAccount();
+  const { openConnectModal } = useConnectModal();
   console.log(messages);
+
+  const handleSendMessage = (message: string) => {
+    if (!address) {
+      openConnectModal && openConnectModal();
+      return;
+    }
+    sendMessage(message, utils.formatEther(120));
+  };
   return (
-    <main className="flex h-full min-h-screen w-full flex-col items-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-      {/* Background images with responsive handling */}
-      <div className="absolute inset-0 z-0 h-full w-full">
-        <div className="hidden h-full w-full md:block">
-          <img
-            src="/assets/web-hero-image.png"
-            alt="Background"
-            className="h-full w-full object-cover"
-          />
-        </div>
-        <div className="block h-full w-full md:hidden">
-          <img
-            src="/assets/mobile-hero-image.png"
-            alt="Mobile Background"
-            className="h-full w-full object-cover"
-          />
-        </div>
-      </div>
-
-      {/* Add the Navbar component */}
-      <Navbar />
-
+    <main className="flex h-full w-full flex-col items-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
       {!isStarted ? (
-        <div className="container z-10 flex flex-col items-center justify-center gap-12 px-4 py-16">
+        <div className="container z-10 mt-[100px] flex flex-col items-center justify-center gap-12 px-4 py-16">
           <Logo className="h-20 w-full" />
           <div className="z-50 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
             {/* <ConnectBtn /> */}
@@ -94,12 +87,17 @@ export default function HomePage() {
         </div> */}
         </div>
       ) : (
-        <div className="container z-10 flex h-full max-w-[800px] flex-grow flex-col gap-12">
+        <div className="container z-10 mt-[100px] flex h-full max-w-[800px] flex-grow flex-col gap-12">
+          <Navbar />
+
           {/* <p>Game State: {gameState}</p>
           <p>Prize Pool: {prizePool}</p>
           <p>Message Price: {messagePrice}</p> */}
           {/* <div className="flex-1"> */}
           <Chat
+            prizePool={prizePool?.toString() || "0"}
+            messagePrice={messagePrice?.toString() || "0"}
+            gameState={gameState as GameState}
             messages={
               messages?.map((item, index) => ({
                 id: item.timestamp.toString(),
@@ -108,8 +106,9 @@ export default function HomePage() {
                 timestamp: new Date(Number(item.timestamp)),
               })) || []
             }
-            onSendMessage={() => {}}
+            onSendMessage={handleSendMessage}
             className="h-full w-full"
+            isDisabled={isLoading || gameState !== GameState.UserAction}
           />
           {/* </div> */}
         </div>
