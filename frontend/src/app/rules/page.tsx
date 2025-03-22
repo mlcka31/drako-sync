@@ -59,8 +59,8 @@ export default function RulesPage() {
             </li>
             <li>
               <strong>Winner-Takes-All:</strong> The player who successfully
-              completes the adventure or achieves the game's objective wins the
-              entire prize pool.
+              completes the adventure or achieves the game&apos;s objective wins
+              the entire prize pool.
             </li>
           </ul>
         </section>
@@ -92,7 +92,7 @@ export default function RulesPage() {
           <h2 className="mb-4 text-2xl font-semibold">Security & Fairness</h2>
           <p className="mb-4">
             The use of a Trusted Execution Environment ensures that the game is
-            provably fair. The AI's decision-making process is secure and
+            provably fair. The AI&apos;s decision-making process is secure and
             tamper-proof, guaranteeing that no one can influence the outcome of
             the game for their benefit.
           </p>
