@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { backendApp, backendAttestation, githubRepo } from "~/config";
 
 export default function RulesPage() {
   return (
@@ -112,22 +113,19 @@ export default function RulesPage() {
             Start Game
           </Link>
           <Link
-            href="https://github.com/mlcka31/zk-dungeon"
+            href={githubRepo}
             className="flex flex-row items-center gap-2 text-blue-400 hover:text-blue-300"
           >
             <img src="/assets/github.svg" alt="Github" width={24} height={24} />
             Github
           </Link>
           <Link
-            href="https://github.com/mlcka31/zk-dungeon"
+            href={backendAttestation}
             className="text-blue-400 hover:text-blue-300"
           >
             Backend attestation
           </Link>
-          <Link
-            href="https://github.com/mlcka31/zk-dungeon"
-            className="text-blue-400 hover:text-blue-300"
-          >
+          <Link href={backendApp} className="text-blue-400 hover:text-blue-300">
             Backend app
           </Link>
         </div>

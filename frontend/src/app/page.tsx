@@ -65,7 +65,7 @@ export default function HomePage() {
           <Chat
             prizePool={prizePool?.toString() || "0"}
             messagePrice={messagePrice?.toString() || "0"}
-            gameState={gameState as GameState}
+            gameState={gameState as keyof typeof GameState}
             messages={
               messages?.map((item, index) => ({
                 id: item.timestamp.toString(),
