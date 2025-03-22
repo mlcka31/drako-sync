@@ -25,6 +25,12 @@ export const useGame = () => {
     });
   };
 
+  const agentAddress = useReadContract({
+    abi: AlephGameStateAbi,
+    address: contractAddress,
+    functionName: "aiAgentAddress",
+  });
+
   const prizePool = useReadContract({
     abi: AlephGameStateAbi,
     address: contractAddress,
@@ -54,5 +60,6 @@ export const useGame = () => {
     gameState: gameState.data && GameState[gameState.data],
     isLoading,
     isError,
+    agentAddress: agentAddress.data,
   };
 };

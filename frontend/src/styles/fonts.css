@@ -1,0 +1,15 @@
+@font-face {
+  font-family: "SuperstarMemes";
+  src: url("/superstar_2/superstar_memesbruh03.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "SuperstarOrigMemes";
+  src: url("/superstar_2/superstarorig_memesbruh03.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
