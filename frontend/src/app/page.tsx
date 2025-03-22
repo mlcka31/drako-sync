@@ -1,12 +1,21 @@
 "use client";
 
+import { utils } from "ethers";
 import { ConnectBtn } from "~/components/ConnectButton";
 
 import Profile from "~/components/Profile";
 import SendMoneyButton from "~/components/SendMoneyButton";
-import { useGetMessages } from "~/hooks/useGetMessages";
+import { useGame } from "~/hooks/useGame";
 export default function HomePage() {
-  const messages = useGetMessages();
+  const {
+    messages,
+    prizePool,
+    messagePrice,
+    gameState,
+    isLoading,
+    isError,
+    sendMessage,
+  } = useGame();
   console.log(messages);
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
@@ -20,7 +29,7 @@ export default function HomePage() {
         <SendMoneyButton />
         <Profile />
         <div>
-          {messages?.data?.map((item) => {
+          {messages?.map((item) => {
             return (
               <div key={item.timestamp}>
                 <p>{item.content}</p>
@@ -28,6 +37,17 @@ export default function HomePage() {
             );
           })}
         </div>
+        <div>
+          <p>Game State: {gameState}</p>
+          <p>Prize Pool: {prizePool}</p>
+          <p>Message Price: {messagePrice}</p>
+        </div>
+
+        <button
+          onClick={() => sendMessage("Hello world!", utils.formatEther(120))}
+        >
+          Send Message
+        </button>
       </div>
     </main>
   );
