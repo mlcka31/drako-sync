@@ -17,6 +17,7 @@ contract AlephGameState {
 
     // Structure to store messages.
     struct Message {
+        uint256 messagePrice;
         address sender;
         string content;
         uint256 timestamp;
@@ -25,18 +26,18 @@ contract AlephGameState {
     Message[] public messages;
 
     // Addresses for admin and AI agent.
-    address public admin;
-    address public aiAgent;
+    address public adminAddress;
+    address public aiAgentAddress;
 
     // Events for off-chain tracking.
     event MessageSent(address indexed sender, string content, uint256 timestamp);
     event AgentReplied(string content, uint256 timestamp);
     event PrizePayout(address winner, uint256 amount);
-    event AIAgentSet(address aiAgent);
+    event AIAgentSetAddress(address aiAgent);
 
     // Modifier to restrict function access to admin.
     modifier onlyAdmin() {
-        require(msg.sender == admin, "Only admin can call this function");
+        require(msg.sender == adminAddress, "Only admin can call this function");
         _;
     }
 
@@ -44,16 +45,17 @@ contract AlephGameState {
     // Note: coeffIncrease should be passed as a fixed-point number.
     // For example, for a 10% increase, pass 1100000000000000000 (which equals 1.1 * PRECISION)
     constructor(uint256 _messagePrize, uint256 _coeffIncrease) {
-        admin = msg.sender;
+        adminAddress = msg.sender;
         messagePrize = _messagePrize;
         coeffIncrease = _coeffIncrease;
-        gameState = GameState.UserAction;
+        gameState = GameState.NotStarted;
     }
 
     // Setter for AI agent address; callable only by admin.
-    function setAIAgent(address _aiAgent) external onlyAdmin {
-        aiAgent = _aiAgent;
-        emit AIAgentSet(_aiAgent);
+    function initGame(address _aiAgentAddress) external onlyAdmin {
+        aiAgentAddress = _aiAgentAddress;
+        emit AIAgentSetAddress(_aiAgentAddress);
+        gameState = GameState.UserAction;
     }
 
     // Users call this function to send a message and pay the fee.
@@ -62,7 +64,11 @@ contract AlephGameState {
         require(msg.value >= messagePrize, "Insufficient funds for message");
 
         // Record the user message.
-        messages.push(Message(msg.sender, _content, block.timestamp));
+        messages.push(Message(
+            messagePrize,
+            msg.sender,
+            _content,
+            block.timestamp));
         // Increase the prize pool.
         prizePool += msg.value;
         // Increase the message fee using fixed-point multiplication:
@@ -74,11 +80,16 @@ contract AlephGameState {
 
     // AI agent calls this function to reply.
     function reply(string memory _content) public {
-        require(msg.sender == aiAgent, "Only AI agent can reply");
+        require(msg.sender == aiAgentAddress, "Only AI agent can reply");
         require(gameState == GameState.AgentAction, "Game is not in going state");
 
         // Record the agent's reply.
-        messages.push(Message(aiAgent, _content, block.timestamp));
+        messages.push(Message(
+            0,
+            aiAgentAddress,
+            _content,
+            block.timestamp
+        ));
         // Transition the game state to Pending.
         gameState = GameState.UserAction;
 
@@ -93,7 +104,7 @@ contract AlephGameState {
 
         address winner;
         // If the last message was from the AI agent, pick the message before it.
-        if (messages[messages.length - 1].sender == aiAgent && messages.length > 1) {
+        if (messages[messages.length - 1].sender == aiAgentAddress && messages.length > 1) {
             winner = messages[messages.length - 2].sender;
         } else {
             winner = messages[messages.length - 1].sender;
