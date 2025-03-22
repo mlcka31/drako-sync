@@ -1,0 +1,11 @@
+
+
+Property Mainnet Testnet
+Name Abstract Abstract Testnet
+Description The mainnet for Abstract. The public testnet for Abstract.
+Chain ID 2741 11124
+RPC URL    https://api.mainnet.abs.xyz    https://api.testnet.abs.xyz
+RPC URL (Websocket)    wss://api.mainnet.abs.xyz/ws wss://api.testnet.abs.xyz/ws
+Explorer    https://abscan.org/    https://sepolia.abscan.org/
+Verify URL    https://api.abscan.org/api    https://api-sepolia.abscan.org/api
+Currency Symbol ETH ETH
