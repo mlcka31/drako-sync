@@ -51,8 +51,61 @@ contract AlephGameState {
         gameState = GameState.NotStarted;
     }
 
+
+    // Getter and Setter for gameState
+    function getGameState() public view returns (GameState) {
+        return gameState;
+    }
+
+    function setGameState(GameState _gameState) public onlyAdmin {
+        gameState = _gameState;
+    }
+
+    // Getter and Setter for prizePool
+    function getPrizePool() public view returns (uint256) {
+        return prizePool;
+    }
+
+    function setPrizePool(uint256 _prizePool) public onlyAdmin {
+        prizePool = _prizePool;
+    }
+
+    // Getter and Setter for messagePrize
+    function getMessagePrize() public view returns (uint256) {
+        return messagePrize;
+    }
+
+    function setMessagePrize(uint256 _messagePrize) public onlyAdmin {
+        messagePrize = _messagePrize;
+    }
+
+    // Getter and Setter for coeffIncrease
+    function getCoeffIncrease() public view returns (uint256) {
+        return coeffIncrease;
+    }
+
+    function setCoeffIncrease(uint256 _coeffIncrease) public onlyAdmin {
+        coeffIncrease = _coeffIncrease;
+    }
+
+    // Getter for PRECISION (constant, no setter needed)
+    function getPrecision() public pure returns (uint256) {
+        return PRECISION;
+    }
+
+    // Setter for adminAddress
+    function setAdminAddress(address _adminAddress) public onlyAdmin {
+        adminAddress = _adminAddress;
+    }
+
+    // Setter for aiAgentAddress
+    function setAIAgentAddress(address _aiAgentAddress) public onlyAdmin {
+        aiAgentAddress = _aiAgentAddress;
+        emit AIAgentSetAddress(_aiAgentAddress);
+    }
+
     // Setter for AI agent address; callable only by admin.
-    function initGame(address _aiAgentAddress) /*external onlyAdmin*/ {
+    function initGame(address _aiAgentAddress) external onlyAdmin {
         aiAgentAddress = _aiAgentAddress;
         emit AIAgentSetAddress(_aiAgentAddress);
         gameState = GameState.UserAction;
