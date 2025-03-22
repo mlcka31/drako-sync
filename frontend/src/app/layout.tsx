@@ -1,11 +1,10 @@
-import "~/styles/globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
+import "~/styles/globals.css";
 
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 import Providers from "~/providers/Providers";
 import { superstarFont, superstarOrigFont } from "./fonts";
-import Logo from "../components/Logo";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
