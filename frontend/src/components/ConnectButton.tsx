@@ -28,13 +28,18 @@ export const ConnectBtn = () => {
         className="btn"
         onClick={async () => {
           console.log("clicked");
+          // Check if openConnectModal is defined
+          if (!openConnectModal) {
+            console.error("openConnectModal is not defined");
+            return;
+          }
           // Disconnecting wallet first because sometimes when is connected but the user is not connected
           if (isConnected) {
             console.log("disconnecting");
             disconnect();
           }
           console.log("opening connect modal");
-          openConnectModal?.();
+          openConnectModal();
         }}
         disabled={isConnecting}
       >
