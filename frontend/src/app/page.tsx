@@ -9,6 +9,8 @@ import { useGame } from "~/hooks/useGame";
 import Link from "next/link";
 import { useState } from "react";
 import FigmaButton from "~/components/FigmaButton";
+import Navbar from "~/components/Navbar";
+import Chat from "~/components/Chat";
 
 export default function HomePage() {
   const [isStarted, setIsStarted] = useState(false);
@@ -19,11 +21,12 @@ export default function HomePage() {
     gameState,
     isLoading,
     isError,
+    agentAddress,
     sendMessage,
   } = useGame();
   console.log(messages);
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
+    <main className="flex h-full min-h-screen w-full flex-col items-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
       {/* Background images with responsive handling */}
       <div className="absolute inset-0 z-0 h-full w-full">
         <div className="hidden h-full w-full md:block">
@@ -41,6 +44,10 @@ export default function HomePage() {
           />
         </div>
       </div>
+
+      {/* Add the Navbar component */}
+      <Navbar />
+
       {!isStarted ? (
         <div className="container z-10 flex flex-col items-center justify-center gap-12 px-4 py-16">
           <Logo className="h-20 w-full" />
@@ -87,10 +94,24 @@ export default function HomePage() {
         </div> */}
         </div>
       ) : (
-        <div className="container z-10 flex flex-col items-center justify-center gap-12 px-4 py-16">
-          <p>Game State: {gameState}</p>
+        <div className="container z-10 flex h-full max-w-[800px] flex-grow flex-col gap-12">
+          {/* <p>Game State: {gameState}</p>
           <p>Prize Pool: {prizePool}</p>
-          <p>Message Price: {messagePrice}</p>
+          <p>Message Price: {messagePrice}</p> */}
+          {/* <div className="flex-1"> */}
+          <Chat
+            messages={
+              messages?.map((item, index) => ({
+                id: item.timestamp.toString(),
+                content: item.content,
+                role: item.sender === agentAddress.data ? "assistant" : "user",
+                timestamp: new Date(Number(item.timestamp)),
+              })) || []
+            }
+            onSendMessage={() => {}}
+            className="h-full w-full"
+          />
+          {/* </div> */}
         </div>
       )}
     </main>
