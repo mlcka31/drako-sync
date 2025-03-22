@@ -4,6 +4,8 @@ import "@rainbow-me/rainbowkit/styles.css";
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 import Providers from "~/providers/Providers";
+import { superstarFont, superstarOrigFont } from "./fonts";
+import Logo from "../components/Logo";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -15,8 +17,26 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${GeistSans.variable}`}>
+    <html
+      lang="en"
+      className={`${GeistSans.variable} ${superstarFont.variable} ${superstarOrigFont.variable}`}
+    >
       <body>
+        <header className="flex items-center justify-between p-4">
+          <div className="flex items-center">
+            <svg
+              className="text-primary"
+              width="120"
+              height="40"
+              viewBox="0 0 120 40"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              {/* Replace with your SVG path data */}
+              <path d="M10 10 H 90 V 90 H 10 L 10 10" fill="currentColor" />
+            </svg>
+          </div>
+          {/* Other header elements */}
+        </header>
         <Providers>{children}</Providers>
       </body>
     </html>

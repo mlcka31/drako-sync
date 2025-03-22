@@ -5,6 +5,18 @@
 import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+  // Make sure experimental features are enabled if needed
+  experimental: {
+    // ... any experimental features ...
+  },
+
+  // Add any required redirects
+  async redirects() {
+    return [
+      // You can add redirects here if needed
+    ];
+  },
+};
 
 export default config;
