@@ -68,7 +68,12 @@ forge create \
   --private-key $PRIVATE_KEY \
   --legacy \
   --gas-price 1000 \
-  src/AlephGameState.sol:AlephGameState --broadcast
+  --broadcast \
+  foundry/src/AlephGameState.sol:AlephGameState \
+  --constructor-args 10000000000000000 1100000000000000000 
 
-export DEPLOYED_TO=0xc8F8cE6491227a6a2Ab92e67a64011a4Eba1C6CF
+export DEPLOYED_TO=0xd90d56f99f3F70c990B634b30Ca9FE83956E8A05
+Deployer: 0x36615Cf349d7F6344891B1e7CA7C72883F5dc049
+Transaction hash: 0xbfb75910b857f3d4d109fe96a50262c53a7d4a56854dd569cfc7e92431b9a028
 ```
+
