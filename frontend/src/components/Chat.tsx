@@ -10,13 +10,14 @@ export interface Message {
   timestamp?: Date;
 }
 
-const formatGameState = (gameState: GameState) => {
+const formatGameState = (gameState: keyof typeof GameState) => {
+  console.log("gameState", gameState);
   switch (gameState) {
-    case GameState.UserAction:
+    case "UserAction":
       return "User Turn";
-    case GameState.AgentAction:
+    case "AgentAction":
       return "Agent Turn";
-    case GameState.Complete:
+    case "Complete":
       return "Game Over";
     default:
       return "Uninitialized";
@@ -30,7 +31,7 @@ interface ChatProps {
   isDisabled?: boolean;
   prizePool: string;
   messagePrice: string;
-  gameState: GameState;
+  gameState: keyof typeof GameState;
 }
 
 const Chat: React.FC<ChatProps> = ({
