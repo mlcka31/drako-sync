@@ -82,7 +82,7 @@ export default function RulesPage() {
               The AI autonomously determines the winner based on gameplay.
             </li>
             <li>
-              Smart contracts automatically distribute the prize to the winner's
+              Smart contracts automatically distribute the prize to the winner
               wallet.
             </li>
           </ol>

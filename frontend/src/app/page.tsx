@@ -1,18 +1,13 @@
 "use client";
 
-import { utils } from "ethers";
-import { ConnectBtn } from "~/components/ConnectButton";
-import Logo from "~/components/Logo";
-import Profile from "~/components/Profile";
-import SendMoneyButton from "~/components/SendMoneyButton";
-import { useGame } from "~/hooks/useGame";
-import Link from "next/link";
-import { useState } from "react";
-import FigmaButton from "~/components/FigmaButton";
-import Navbar from "~/components/Navbar";
-import Chat from "~/components/Chat";
-import { useAccount } from "wagmi";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { utils } from "ethers";
+import { useState } from "react";
+import { useAccount } from "wagmi";
+import Chat from "~/components/Chat";
+import Logo from "~/components/Logo";
+import Navbar from "~/components/Navbar";
+import { useGame } from "~/hooks/useGame";
 import { GameState } from "~/types/GameState";
 
 export default function HomePage() {
@@ -33,8 +28,8 @@ export default function HomePage() {
   console.log(messages);
 
   const handleSendMessage = (message: string) => {
-    if (!address) {
-      openConnectModal && openConnectModal();
+    if (!address && openConnectModal != undefined) {
+      openConnectModal();
       return;
     }
     if (!messagePrice) {
