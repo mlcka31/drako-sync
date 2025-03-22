@@ -18,6 +18,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const queryClient = new QueryClient();
 
 import { WagmiProvider } from "wagmi";
+import { rpcUrl } from "~/config";
 
 type Props = {
   children?: React.ReactNode;
@@ -25,7 +26,19 @@ type Props = {
 
 const projectId = "32e0c2400c7a431216898567498a882b";
 
-const supportedChains: Chain[] = [sepolia, zksync, zksyncSepoliaTestnet];
+const supportedChains: Chain[] = [
+  // sepolia,
+  zksync,
+  // zksyncSepoliaTestnet,
+  // {
+  //   id: 9,
+  //   name: "ZkSync Serge",
+  //   nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  //   rpcUrls: {
+  //     default: { http: [rpcUrl] },
+  //   },
+  // },
+];
 
 export const config = getDefaultConfig({
   appName: "WalletConnection",
