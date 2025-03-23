@@ -21,7 +21,7 @@ const formatGameState = (gameState: keyof typeof GameState) => {
     case "Complete":
       return "Game Over";
     default:
-      return "Uninitialized";
+      return "";
   }
 };
 
