@@ -4,11 +4,15 @@ import { contractAddress } from "~/config";
 import { GameState } from "~/types/GameState";
 import { utils } from "ethers";
 
+const pollingInterval = 1000;
 export const useGame = () => {
   const messages = useReadContract({
     abi: AlephGameStateAbi,
     address: contractAddress,
     functionName: "getMessages",
+    query: {
+      refetchInterval: pollingInterval,
+    },
   });
 
   const { writeContract } = useWriteContract();
@@ -29,24 +33,36 @@ export const useGame = () => {
     abi: AlephGameStateAbi,
     address: contractAddress,
     functionName: "aiAgentAddress",
+    query: {
+      refetchInterval: pollingInterval,
+    },
   });
 
   const prizePool = useReadContract({
     abi: AlephGameStateAbi,
     address: contractAddress,
     functionName: "prizePool",
+    query: {
+      refetchInterval: pollingInterval,
+    },
   });
 
   const gameState = useReadContract({
     abi: AlephGameStateAbi,
     address: contractAddress,
     functionName: "gameState",
+    query: {
+      refetchInterval: pollingInterval,
+    },
   });
 
   const messagePrice = useReadContract({
     abi: AlephGameStateAbi,
     address: contractAddress,
     functionName: "messagePrice",
+    query: {
+      refetchInterval: pollingInterval,
+    },
   });
 
   const isLoading =
