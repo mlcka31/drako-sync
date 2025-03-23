@@ -44,7 +44,16 @@ func NewBlockchain(logger *zap.Logger, chatGPTClient chatgpt.ChatGPTClient, acco
 		logger.Fatal("Failed to connect to Ethereum client", zap.Error(err))
 	}
 
-	privateKey, err := crypto.HexToECDSA(env.PRIVATE_KEY)
+	if err := accountManager.WritePrivateKeyToFile(); err != nil {
+		logger.Fatal("Failed to write private key to file", zap.Error(err))
+	}
+
+	privateKeyBytes, err := os.ReadFile(accountManager.PrivateKeyPath)
+	if err != nil {
+		logger.Fatal("Failed to read private key file", zap.Error(err))
+	}
+
+	privateKey, err := crypto.ToECDSA(privateKeyBytes)
 	if err != nil {
 		logger.Fatal("Failed to parse private key", zap.Error(err))
 	}
@@ -238,12 +247,8 @@ func main() {
 		logger.Fatal("Error creating account", zap.Error(err))
 	}
 
-	server := NewServer("serv1", logger)
+	server := NewServer("zk-dungeon", logger)
 	go server.Run("localhost:8080")
-
-	for i := 0; i < 10; i++ {
-		logger.Info("test", zap.Int("i", i))
-	}
 
 	blockchain := NewBlockchain(logger, *chatGPTClient, accountManager, server)
 	//blockchain.DeployContract()
