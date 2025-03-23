@@ -9,6 +9,15 @@ contract AlephGameState {
         Complete,
         NotStarted
     }
+    string public prompt;
+    bool public promptSet;
+
+    function setPrompt(string memory _prompt) public onlyAgent {
+        require(!promptSet, "Prompt can only be set once");
+        prompt = _prompt;
+        promptSet = true;
+    }
+
 
     GameState public gameState;
 
@@ -47,6 +56,11 @@ contract AlephGameState {
         _;
     }
 
+    modifier onlyAgent(){
+        require(msg.sender == aiAgentAddress, "Only agent can call this function");
+        _;
+    }
+
     // Constructor: sets initial fee, coefficient, and game state.
     // Note: coeffIncrease should be passed as a fixed-point number.
     // For example, for a 10% increase, pass 1100000000000000000 (which equals 1.1 * PRECISION)
@@ -57,60 +71,12 @@ contract AlephGameState {
         gameState = GameState.NotStarted;
     }
 
-    // Getter and Setter for gameState
-    function getGameState() public view returns (GameState) {
-        return gameState;
-    }
 
-    function setGameState(GameState _gameState) public onlyAdmin {
-        gameState = _gameState;
-    }
-
-    // Getter and Setter for prizePool
-    function getPrizePool() public view returns (uint256) {
-        return prizePool;
-    }
-
-    function setPrizePool(uint256 _prizePool) public onlyAdmin {
-        prizePool = _prizePool;
-    }
-
-    // Getter and Setter for messagePrice
-    function getmessagePrice() public view returns (uint256) {
-        return messagePrice;
-    }
-
-    function setmessagePrice(uint256 _messagePrice) public onlyAdmin {
-        messagePrice = _messagePrice;
-    }
-
-    // Getter and Setter for coeffIncrease
-    function getCoeffIncrease() public view returns (uint256) {
-        return coeffIncrease;
-    }
-
-    function setCoeffIncrease(uint256 _coeffIncrease) public onlyAdmin {
-        coeffIncrease = _coeffIncrease;
-    }
-
-    // Getter for PRECISION (constant, no setter needed)
-    function getPrecision() public pure returns (uint256) {
-        return PRECISION;
-    }
-
-    // Setter for adminAddress
-    function setAdminAddress(address _adminAddress) public onlyAdmin {
-        adminAddress = _adminAddress;
-    }
-
-    // Setter for aiAgentAddress
-    function setAIAgentAddress(address _aiAgentAddress) public onlyAdmin {
-        aiAgentAddress = _aiAgentAddress;
-        emit AIAgentSetAddress(_aiAgentAddress);
-    }
 
     // Setter for AI agent address; callable only by admin.
     function initGame(address _aiAgentAddress) external onlyAdmin {
+        require(aiAgentAddress == address(0), "Game already initialized");
+
         aiAgentAddress = _aiAgentAddress;
         emit AIAgentSetAddress(_aiAgentAddress);
         gameState = GameState.UserAction;
@@ -134,7 +100,7 @@ contract AlephGameState {
     }
 
     // AI agent calls this function to reply.
-    function reply(string memory _content) public {
+    function reply(string memory _content) public onlyAgent{
         require(msg.sender == aiAgentAddress, "Only AI agent can reply");
         require(gameState == GameState.AgentAction, "Game is not in going state");
 
@@ -148,7 +114,9 @@ contract AlephGameState {
     // Admin calls this function to payout the prize.
     // For demonstration, the winner is chosen as the last user (non-AI) who sent a message.
     function payoutPrize() public onlyAdmin {
-        require(gameState == GameState.UserAction, "Game is not pending payout");
+        require(gameState != GameState.Complete, "Game is not pending payout");
+        require(gameState != GameState.NotStarted, "Game is not pending payout");
+
         require(messages.length > 0, "No messages available");
 
         address winner;
@@ -169,6 +137,32 @@ contract AlephGameState {
         require(sent, "Transfer failed");
 
         emit PrizePayout(winner, amount);
+    }
+
+    function abort() public onlyAdmin {
+        uint256 totalRefunded = 0;
+
+        // Loop over all messages and refund players their contributions.
+        for (uint256 i = 0; i < messages.length; i++) {
+            // Exclude messages from the AI agent and the admin.
+            if (messages[i].sender != aiAgentAddress && messages[i].sender != adminAddress) {
+                uint256 refund = messages[i].messagePrice;
+                totalRefunded += refund;
+                // Refund the sender. Using call to transfer funds.
+                (bool success,) = messages[i].sender.call{value: refund}("");
+                require(success, "Refund transfer failed");
+            }
+        }
+
+        // Calculate admin's share: the remaining funds after refunds.
+        uint256 adminShare = prizePool - totalRefunded;
+        // Set prizePool to zero before transferring to prevent reentrancy issues.
+        prizePool = 0;
+        (bool sent,) = adminAddress.call{value: adminShare}("");
+        require(sent, "Admin transfer failed");
+
+        // Update the game state to complete.
+        gameState = GameState.Complete;
     }
 
     // Function to retrieve all messages.
