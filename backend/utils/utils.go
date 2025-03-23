@@ -9,10 +9,13 @@ import (
 type Envs struct {
 	OPEN_AI_KEY           string
 	RPC_URL               string
-	PRIVATE_KEY           string
 	GAME_CONTRACT_ADDRESS string
 	ADMIN_ADDRESS         string
 	INIT_PROMPT           string
+	PRIVATE_KEY           string
+	PUBLIC_KEY            string
+	WEB_PORT              string
+	WEB_HOST              string
 }
 
 var loaded bool
@@ -29,10 +32,13 @@ func LoadEnvs() Envs {
 	envs = Envs{
 		OPEN_AI_KEY:           os.Getenv("OPEN_AI_KEY"),
 		RPC_URL:               os.Getenv("RPC_URL"),
-		PRIVATE_KEY:           os.Getenv("PRIVATE_KEY"),
 		GAME_CONTRACT_ADDRESS: os.Getenv("GAME_CONTRACT_ADDRESS"),
 		ADMIN_ADDRESS:         os.Getenv("ADMIN_ADDRESS"),
 		INIT_PROMPT:           os.Getenv("INIT_PROMPT"),
+		PRIVATE_KEY:           os.Getenv("PRIVATE_KEY"),
+		PUBLIC_KEY:            os.Getenv("PUBLIC_KEY"),
+		WEB_PORT:              os.Getenv("WEB_PORT"),
+		WEB_HOST:              os.Getenv("WEB_HOST"),
 	}
 	loaded = true
 	return envs
