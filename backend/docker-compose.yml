@@ -10,6 +10,7 @@ services:
       - WEB_PORT=${WEB_PORT}
       - WEB_HOST=${WEB_HOST}
       - INIT_PROMPT=${INIT_PROMPT}
+      - USE_STATIC_KEYS=${USE_STATIC_KEYS}
 
       - OPEN_AI_KEY=${OPEN_AI_KEY}
       - RPC_URL=${RPC_URL}
