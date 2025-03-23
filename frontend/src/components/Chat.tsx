@@ -75,7 +75,7 @@ const Chat: React.FC<ChatProps> = ({
             <div
               className={`max-w-[80%] rounded-lg p-3 ${
                 message.role === "user"
-                  ? "rounded-tr-none bg-[#0707160D] text-white"
+                  ? "rounded-tr-none bg-[#07071666] text-white"
                   : "rounded-tl-none bg-[#107378] text-white"
               }`}
             >
