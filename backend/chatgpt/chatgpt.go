@@ -27,24 +27,6 @@ func NewChatGPTClient(apiKey string) *ChatGPTClient {
 	}
 }
 
-// SendInitPromptMessage sends a message to ChatGPT and returns the response
-func (c *ChatGPTClient) SendInitPromptMessage(ctx context.Context, userMessage string) (string, error) {
-	prompt := fmt.Sprintf("Has the user killed the dragon with this action: '%s'?", userMessage)
-	resp, err := c.client.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{
-		Messages: []openai.ChatCompletionMessageParamUnion{
-			openai.UserMessage(prompt),
-		},
-		Model: shared.ChatModelGPT4,
-	})
-	if err != nil {
-		return "", fmt.Errorf("ChatGPT request failed: %w", err)
-	}
-	if len(resp.Choices) == 0 {
-		return "", fmt.Errorf("no response from ChatGPT")
-	}
-	return resp.Choices[0].Message.Content, nil
-}
-
 func (c *ChatGPTClient) SendAllMessages(ctx context.Context, allMessages []string) (string, error) {
 	prompt := fmt.Sprintf("Has the last message in this array killed the dragon? If yes - return 'success', if no - return 'fail'. '%s'", MarshalArrayToJSON(allMessages))
 	resp, err := c.client.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{
