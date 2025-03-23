@@ -40,9 +40,12 @@ func (c *ChatGPTClient) SetAIAddress(aiAddress string) {
 	c.aiAddress = aiAddress
 }
 
-func (c *ChatGPTClient) SendAllMessages(ctx context.Context, allMessages []contract.AlephGameStateMessage) (string, error) {
-	//prompt := fmt.Sprintf(c.initPrompt+" '%s'", marshalArrayToJSON(allMessages))
+type ChatGPTResponse struct {
+	IsSuccess bool
+	Content   string
+}
 
+func (c *ChatGPTClient) SendAllMessages(ctx context.Context, allMessages []contract.AlephGameStateMessage) (ChatGPTResponse, error) {
 	c.logger.Debug("Sending messages to ChatGPT")
 
 	userMessages, agentMessages := c.splitMessagesIntoUserAndAgentOnes(allMessages)
@@ -53,16 +56,30 @@ func (c *ChatGPTClient) SendAllMessages(ctx context.Context, allMessages []contr
 	resp, err := c.client.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{
 		Messages: promptArray,
 		Model:    shared.ChatModelGPT4,
+		Tools: []openai.ChatCompletionToolParam{
+			{Function: openai.FunctionDefinitionParam{
+				Name:        "release_the_prize",
+				Description: openai.String("Call when the dragon is killed and the user perfectly passed all the challenges"),
+			}},
+		},
 	})
 	if err != nil {
-		return "", fmt.Errorf("ChatGPT request failed: %w", err)
+		return ChatGPTResponse{}, fmt.Errorf("ChatGPT request failed: %w", err)
 	}
 	if len(resp.Choices) == 0 {
-		return "", fmt.Errorf("no response from ChatGPT")
+		return ChatGPTResponse{}, fmt.Errorf("no response from ChatGPT")
 	}
 
-	//return resp.Choices[0].Message.ToolCalls[0].Function.Name, nil
-	return resp.Choices[0].Message.Content, nil
+	if len(resp.Choices[0].Message.ToolCalls) == 0 {
+		return ChatGPTResponse{
+			IsSuccess: false,
+			Content:   resp.Choices[0].Message.Content,
+		}, nil
+	}
+	return ChatGPTResponse{
+		IsSuccess: true,
+		Content:   resp.Choices[0].Message.Content,
+	}, nil
 }
 
 func (c *ChatGPTClient) buildChatCompletionMessage(userMessages []string, agentMessages []string) []openai.ChatCompletionMessageParamUnion {
