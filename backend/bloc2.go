@@ -10,8 +10,11 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"log"
 	"math/big"
+	"os"
 	"strings"
 	"time"
 )
@@ -26,30 +29,34 @@ type Blockchain struct {
 	CoeffIncrease       *big.Int
 	AiAgentAddress      common.Address
 
-	ChatGPTClient chatgpt.ChatGPTClient
+	logger         *zap.Logger
+	accountManager *AccountManager
+	server         *Server
+	ChatGPTClient  chatgpt.ChatGPTClient
 }
 
-func NewBlockchain() *Blockchain {
+func NewBlockchain(logger *zap.Logger, chatGPTClient chatgpt.ChatGPTClient, accountManager *AccountManager, server *Server) *Blockchain {
+	logger.Info("NewBlockchain")
 	env := utils.LoadEnvs()
 
 	client, err := ethclient.Dial(env.RPC_URL)
 	if err != nil {
-		log.Fatalf("Failed to connect to Ethereum client: %v", err)
+		logger.Fatal("Failed to connect to Ethereum client", zap.Error(err))
 	}
 
 	privateKey, err := crypto.HexToECDSA(env.PRIVATE_KEY)
 	if err != nil {
-		log.Fatalf("Failed to parse private key: %v", err)
+		logger.Fatal("Failed to parse private key", zap.Error(err))
 	}
 
 	chainID, err := client.NetworkID(context.Background())
 	if err != nil {
-		log.Fatalf("Failed to fetch chain ID: %v", err)
+		logger.Fatal("Failed to fetch chain ID", zap.Error(err))
 	}
 
 	auth, err := bind.NewKeyedTransactorWithChainID(privateKey, chainID)
 	if err != nil {
-		log.Fatalf("Failed to create transaction auth: %v", err)
+		logger.Fatal("Failed to create transaction auth", zap.Error(err))
 	}
 
 	contractAddress := common.HexToAddress(env.GAME_CONTRACT_ADDRESS)
@@ -57,14 +64,15 @@ func NewBlockchain() *Blockchain {
 	// Create an instance of the contract
 	instance, err := contract.NewContract(contractAddress, client)
 
-	chatGPTClient := chatgpt.NewChatGPTClient(env.OPEN_AI_KEY)
-
 	return &Blockchain{
 		Client:              client,
 		Auth:                auth,
 		ChainID:             chainID,
 		Instance:            instance,
-		ChatGPTClient:       *chatGPTClient,
+		ChatGPTClient:       chatGPTClient,
+		accountManager:      accountManager,
+		server:              server,
+		logger:              logger,
 		InitialMessagePrice: big.NewInt(1e15),
 		CoeffIncrease:       big.NewInt(1100000000000000000),
 		AiAgentAddress:      common.HexToAddress(env.ADMIN_ADDRESS),
@@ -74,15 +82,17 @@ func NewBlockchain() *Blockchain {
 func (bc *Blockchain) DeployContract() {
 	address, tx, instance, err := contract.DeployContract(bc.Auth, bc.Client, bc.InitialMessagePrice, bc.CoeffIncrease)
 	if err != nil {
-		log.Fatalf("Failed to deploy contract: %v", err)
+		bc.logger.Fatal("Failed to deploy contract", zap.Error(err))
 	}
 
-	fmt.Printf("Contract deployed at: %s\n", address.Hex())
-	fmt.Printf("Transaction hash: %s\n", tx.Hash().Hex())
+	//fmt.Printf("Contract deployed at: %s\n", address.Hex())
+	//fmt.Printf("Transaction hash: %s\n", tx.Hash().Hex())
+	bc.logger.Info("Contract deployed", zap.String("address", address.Hex()))
+	bc.logger.Info("Transaction hash", zap.String("tx", tx.Hash().Hex()))
 
 	_, err = bind.WaitDeployed(context.Background(), bc.Client, tx)
 	if err != nil {
-		log.Fatalf("Failed to confirm contract deployment: %v", err)
+		bc.logger.Fatal("Failed to confirm contract deployment", zap.Error(err))
 	}
 
 	bc.ContractAddress = address
@@ -92,56 +102,58 @@ func (bc *Blockchain) DeployContract() {
 func (bc *Blockchain) StartGame() {
 	tx, err := bc.Instance.SetAIAgentAddress(bc.Auth, bc.AiAgentAddress)
 	if err != nil {
-		log.Fatalf("Failed to set AI agent address: %v", err)
+		bc.logger.Fatal("Failed to set AI agent address", zap.Error(err))
 	}
-	fmt.Printf("Set AI Agent address TX: %s\n", tx.Hash().Hex())
+	bc.logger.Info("Set AI Agent address TX", zap.String("tx", tx.Hash().Hex()))
 
 	tx, err = bc.Instance.InitGame(bc.Auth, bc.AiAgentAddress)
 	if err != nil {
-		log.Fatalf("Failed to initialize game: %v", err)
+		bc.logger.Fatal("Failed to initialize game", zap.Error(err))
 	}
-	fmt.Printf("Game initialized TX: %s\n", tx.Hash().Hex())
+	bc.logger.Info("Game initialized TX", zap.String("tx", tx.Hash().Hex()))
 
 	messageContent := "Hello, AI!"
 	msgPrice, err := bc.Instance.GetmessagePrice(&bind.CallOpts{})
 	if err != nil {
-		log.Fatalf("Failed to fetch message price: %v", err)
+		bc.logger.Fatal("Failed to fetch message price", zap.Error(err))
 	}
 
 	bc.Auth.Value = msgPrice
 	tx, err = bc.Instance.SendMessage(bc.Auth, messageContent)
 	if err != nil {
-		log.Fatalf("Failed to send message: %v", err)
+		bc.logger.Fatal("Failed to send message", zap.Error(err))
 	}
-	fmt.Printf("Message sent TX: %s\n", tx.Hash().Hex())
+	bc.logger.Info("Message sent TX", zap.String("tx", tx.Hash().Hex()))
 
 	state, err := bc.Instance.GetGameState(&bind.CallOpts{})
 	if err != nil {
-		log.Fatalf("Failed to retrieve game state: %v", err)
+		bc.logger.Fatal("Failed to retrieve game state", zap.Error(err))
 	}
-	fmt.Printf("Current Game State: %s\n", parseGameState(state))
+	bc.logger.Info("Current Game State", zap.String("state", parseGameState(state)))
 
 	prizePool, err := bc.Instance.GetPrizePool(&bind.CallOpts{})
 	if err != nil {
-		log.Fatalf("Failed to retrieve prize pool: %v", err)
+		bc.logger.Fatal("Failed to retrieve prize pool", zap.Error(err))
 	}
-	fmt.Printf("Current Prize Pool: %s wei\n", prizePool.String())
+	bc.logger.Info("Current Prize Pool", zap.String("prizePool", prizePool.String()))
 }
 
 func (bc *Blockchain) MonitorMessages() {
+	bc.logger.Info("MonitorMessages")
+
 	for {
 		stateInt, err := bc.Instance.GetGameState(&bind.CallOpts{})
 		state := parseGameState(stateInt)
 		if state != "AgentAction" {
-			time.Sleep(10 * time.Second)
+			time.Sleep(3 * time.Second)
 			continue
 		}
 
 		// Retrieve all messages from the contract
 		messages, err := bc.Instance.GetMessages(&bind.CallOpts{})
 		if err != nil {
-			log.Printf("Failed to retrieve messages: %v", err)
-			time.Sleep(10 * time.Second)
+			bc.logger.Error("Failed to retrieve messages", zap.Error(err))
+			time.Sleep(3 * time.Second)
 			continue
 		}
 
@@ -154,31 +166,31 @@ func (bc *Blockchain) MonitorMessages() {
 		// Send all messages to ChatGPT in a single request
 		chatResponse, err := bc.ChatGPTClient.SendAllMessages(context.Background(), messageContents)
 		if err != nil {
-			log.Printf("Failed to send messages to ChatGPT: %v", err)
+			bc.logger.Error("Failed to send messages to ChatGPT", zap.Error(err))
 			time.Sleep(1 * time.Second)
 			continue
 		}
 
 		// Process ChatGPT's response
-		log.Printf("ChatGPT response:\n%s", chatResponse)
+		bc.logger.Info("ChatGPT response", zap.String("response", chatResponse))
 
 		if strings.Contains(chatResponse, "success") {
 			tx, err := bc.Instance.PayoutPrize(bc.Auth)
 			if err != nil {
-				log.Printf("Failed to PayoutPrize: %v", err)
+				bc.logger.Error("Failed to PayoutPrize", zap.Error(err))
 				continue
 			}
-			log.Printf("Reply transaction sent: %s", tx.Hash().Hex())
+			bc.logger.Info("Reply transaction sent", zap.String("tx", tx.Hash().Hex()))
 			break
 		}
 
 		// Optionally, call the smart contract's reply function with the ChatGPT response
 		tx, err := bc.Instance.Reply(bc.Auth, chatResponse)
 		if err != nil {
-			log.Printf("Failed to call reply function: %v", err)
+			bc.logger.Error("Failed to call reply function", zap.Error(err))
 			continue
 		}
-		log.Printf("Reply transaction sent: %s", tx.Hash().Hex())
+		bc.logger.Info("Reply transaction sent", zap.String("tx", tx.Hash().Hex()))
 
 		// Wait before checking for new messages
 		time.Sleep(3 * time.Second)
@@ -204,11 +216,49 @@ func (bc *Blockchain) CheckWalletBalance() {
 }
 
 func main() {
-	blockchain := NewBlockchain()
+	env := utils.LoadEnvs()
+
+	logger, err := setupLogger()
+	defer logger.Sync()
+
+	chatGPTClient := chatgpt.NewChatGPTClient(env.OPEN_AI_KEY)
+
+	accountManager, err := NewAccountManager("private_key.hex")
+	if err != nil {
+		logger.Fatal("Error creating account", zap.Error(err))
+		//log.Fatalf("Error creating account: %v", err)
+	}
+
+	server := NewServer("serv1", logger)
+	go server.Run("localhost:8080")
+
+	for i := 0; i < 10; i++ {
+		logger.Info("test", zap.Int("i", i))
+	}
+
+	blockchain := NewBlockchain(logger, *chatGPTClient, accountManager, server)
 	//blockchain.DeployContract()
 	//blockchain.StartGame()
 	blockchain.MonitorMessages()
 	//blockchain.CheckWalletBalance()
+}
+
+func setupLogger() (*zap.Logger, error) {
+	encoderConfig := zap.NewProductionEncoderConfig()
+	encoderConfig.TimeKey = ""   // Omit timestamp
+	encoderConfig.CallerKey = "" // Omit caller information
+	config := zap.NewProductionConfig()
+	config.Sampling = nil
+	//logger, err := config.Build()
+
+	encoder := zapcore.NewJSONEncoder(encoderConfig)
+	logLevel := zap.NewAtomicLevelAt(zap.DebugLevel)
+	core := zapcore.NewCore(encoder, zapcore.AddSync(os.Stdout), logLevel)
+
+	// Construct the logger
+	logger := zap.New(core)
+
+	return logger, nil
 }
 
 func parseGameState(state uint8) string {
