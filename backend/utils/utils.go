@@ -16,6 +16,7 @@ type Envs struct {
 	PUBLIC_KEY            string
 	WEB_PORT              string
 	WEB_HOST              string
+	USE_STATIC_KEYS       string
 }
 
 var loaded bool
@@ -39,6 +40,7 @@ func LoadEnvs() Envs {
 		PUBLIC_KEY:            os.Getenv("PUBLIC_KEY"),
 		WEB_PORT:              os.Getenv("WEB_PORT"),
 		WEB_HOST:              os.Getenv("WEB_HOST"),
+		USE_STATIC_KEYS:       os.Getenv("USE_STATIC_KEYS"),
 	}
 	loaded = true
 	return envs
