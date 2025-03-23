@@ -14,14 +14,14 @@ export interface Message {
 const formatGameState = (gameState: keyof typeof GameState) => {
   console.log("gameState", gameState);
   switch (gameState) {
-    case "UserAction":
+    case 0 as any:
       return "User Turn";
     case "AgentAction":
       return "Agent Turn";
     case "Complete":
       return "Game Over";
     default:
-      return "Uninitialized";
+      return "";
   }
 };
 
@@ -65,7 +65,7 @@ const Chat: React.FC<ChatProps> = ({
 
   return (
     <div
-      className={`flex flex-col rounded-lg shadow-md ${className || "h-full"} overflow-hidden`}
+      className={`flex max-w-[800px] flex-col rounded-lg shadow-md ${className || "h-full"} overflow-hidden`}
     >
       <div className="flex-1 space-y-4 overflow-y-auto p-4">
         {messages.map((message) => (

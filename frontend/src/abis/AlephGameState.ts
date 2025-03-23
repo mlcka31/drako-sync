@@ -207,7 +207,6 @@ export const AlephGameStateAbi = [
       },
     ],
     name: "initGame",
-
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -340,6 +339,13 @@ export const AlephGameStateAbi = [
       },
     ],
     name: "setPrompt",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "stopGameAndWithdraw",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
