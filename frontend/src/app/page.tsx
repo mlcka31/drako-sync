@@ -1,12 +1,17 @@
 "use client";
 
+import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { utils } from "ethers";
-import { ConnectBtn } from "~/components/ConnectButton";
-
-import Profile from "~/components/Profile";
-import SendMoneyButton from "~/components/SendMoneyButton";
+import { useState } from "react";
+import { useAccount } from "wagmi";
+import Chat from "~/components/Chat";
+import Logo from "~/components/Logo";
+import Navbar from "~/components/Navbar";
 import { useGame } from "~/hooks/useGame";
+import { GameState } from "~/types/GameState";
+
 export default function HomePage() {
+  const [isStarted, setIsStarted] = useState(false);
   const {
     messages,
     prizePool,
@@ -14,41 +19,72 @@ export default function HomePage() {
     gameState,
     isLoading,
     isError,
+    agentAddress,
     sendMessage,
   } = useGame();
-  console.log(messages);
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-      <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-        <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
-          Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
-        </h1>
-        <div className="z-50 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-          <ConnectBtn />
-        </div>
-        <SendMoneyButton />
-        <Profile />
-        <div>
-          {messages?.map((item) => {
-            return (
-              <div key={item.timestamp}>
-                <p>{item.content}</p>
-              </div>
-            );
-          })}
-        </div>
-        <div>
-          <p>Game State: {gameState}</p>
-          <p>Prize Pool: {prizePool}</p>
-          <p>Message Price: {messagePrice}</p>
-        </div>
 
-        <button
-          onClick={() => sendMessage("Hello world!", utils.formatEther(120))}
-        >
-          Send Message
-        </button>
-      </div>
+  const { address } = useAccount();
+  const { openConnectModal } = useConnectModal();
+  console.log(messages);
+
+  const handleSendMessage = (message: string) => {
+    if (!address && openConnectModal != undefined) {
+      openConnectModal();
+      return;
+    }
+    if (!messagePrice) {
+      // toast.error("Message price is not set");
+      return;
+    }
+    sendMessage(message, utils.formatEther(messagePrice));
+  };
+  let isDisabled = isLoading || gameState !== GameState.UserAction;
+  console.log(address);
+  console.log(isDisabled);
+  if (address == undefined) {
+    isDisabled = false;
+  }
+  console.log(isDisabled);
+
+  return (
+    <main className="flex h-full w-full flex-col items-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
+      {!isStarted ? (
+        <div className="container z-10 mt-[100px] flex h-[90vh] flex-col items-center justify-center gap-12 px-4 py-16">
+          <Logo className="h-20 w-full" />
+          <div className="z-50 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
+            <button
+              className="h-[80px] w-full bg-transparent text-[32px] md:text-[80px]"
+              onClick={() => {
+                setIsStarted(true);
+              }}
+            >
+              Start
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex h-screen flex-col">
+          <Navbar />
+          <main className="z-100 relative flex-1 overflow-hidden">
+            <Chat
+              prizePool={prizePool?.toString() || "0"}
+              messagePrice={messagePrice?.toString() || "0"}
+              gameState={gameState as keyof typeof GameState}
+              messages={
+                messages?.map((item, index) => ({
+                  id: item.timestamp.toString(),
+                  content: item.content,
+                  role: item.sender === agentAddress ? "assistant" : "user",
+                  timestamp: new Date(Number(item.timestamp)),
+                })) || []
+              }
+              onSendMessage={handleSendMessage}
+              className="h-full w-full"
+              isDisabled={isDisabled}
+            />
+          </main>
+        </div>
+      )}
     </main>
   );
 }
