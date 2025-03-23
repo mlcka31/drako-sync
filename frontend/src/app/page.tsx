@@ -38,6 +38,14 @@ export default function HomePage() {
     }
     sendMessage(message, utils.formatEther(messagePrice));
   };
+  let isDisabled = isLoading || gameState !== GameState.UserAction;
+  console.log(address);
+  console.log(isDisabled);
+  if (address == undefined) {
+    isDisabled = false;
+  }
+  console.log(isDisabled);
+
   return (
     <main className="flex h-full w-full flex-col items-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
       {!isStarted ? (
@@ -55,24 +63,26 @@ export default function HomePage() {
           </div>
         </div>
       ) : (
-        <div className="container z-10 mt-[100px] flex h-full max-w-[800px] flex-grow flex-col gap-12">
+        <div className="flex h-screen flex-col">
           <Navbar />
-          <Chat
-            prizePool={prizePool?.toString() || "0"}
-            messagePrice={messagePrice?.toString() || "0"}
-            gameState={gameState as keyof typeof GameState}
-            messages={
-              messages?.map((item, index) => ({
-                id: item.timestamp.toString(),
-                content: item.content,
-                role: item.sender === agentAddress ? "assistant" : "user",
-                timestamp: new Date(Number(item.timestamp)),
-              })) || []
-            }
-            onSendMessage={handleSendMessage}
-            className="h-full w-full"
-            isDisabled={isLoading || gameState !== GameState.UserAction}
-          />
+          <main className="z-100 relative flex-1 overflow-hidden">
+            <Chat
+              prizePool={prizePool?.toString() || "0"}
+              messagePrice={messagePrice?.toString() || "0"}
+              gameState={gameState as keyof typeof GameState}
+              messages={
+                messages?.map((item, index) => ({
+                  id: item.timestamp.toString(),
+                  content: item.content,
+                  role: item.sender === agentAddress ? "assistant" : "user",
+                  timestamp: new Date(Number(item.timestamp)),
+                })) || []
+              }
+              onSendMessage={handleSendMessage}
+              className="h-full w-full"
+              isDisabled={isDisabled}
+            />
+          </main>
         </div>
       )}
     </main>

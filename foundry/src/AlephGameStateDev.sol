@@ -111,6 +111,8 @@ contract AlephGameState {
 
     // Setter for AI agent address; callable only by admin.
     function initGame(address _aiAgentAddress) external onlyAdmin {
+        require(aiAgentAddress == address(0), "Game already initialized");
+
         aiAgentAddress = _aiAgentAddress;
         emit AIAgentSetAddress(_aiAgentAddress);
         gameState = GameState.UserAction;
@@ -169,6 +171,32 @@ contract AlephGameState {
         require(sent, "Transfer failed");
 
         emit PrizePayout(winner, amount);
+    }
+
+    function abort() public onlyAdmin {
+        uint256 totalRefunded = 0;
+
+        // Loop over all messages and refund players their contributions.
+        for (uint256 i = 0; i < messages.length; i++) {
+            // Exclude messages from the AI agent and the admin.
+            if (messages[i].sender != aiAgentAddress && messages[i].sender != adminAddress) {
+                uint256 refund = messages[i].messagePrice;
+                totalRefunded += refund;
+                // Refund the sender. Using call to transfer funds.
+                (bool success,) = messages[i].sender.call{value: refund}("");
+                require(success, "Refund transfer failed");
+            }
+        }
+
+        // Calculate admin's share: the remaining funds after refunds.
+        uint256 adminShare = prizePool - totalRefunded;
+        // Set prizePool to zero before transferring to prevent reentrancy issues.
+        prizePool = 0;
+        (bool sent,) = adminAddress.call{value: adminShare}("");
+        require(sent, "Admin transfer failed");
+
+        // Update the game state to complete.
+        gameState = GameState.Complete;
     }
 
     // Function to retrieve all messages.
