@@ -122,7 +122,7 @@ contract AlephGameState {
 
     // Admin calls this function to payout the prize.
     // For demonstration, the winner is chosen as the last user (non-AI) who sent a message.
-    function payoutPrize() public onlyAdmin {
+    function payoutPrize() public onlyAgent {
         require(gameState != GameState.Complete, "Game is not pending payout");
         require(gameState != GameState.NotStarted, "Game is not pending payout");
 

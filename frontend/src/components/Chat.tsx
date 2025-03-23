@@ -14,7 +14,7 @@ export interface Message {
 const formatGameState = (gameState: keyof typeof GameState) => {
   console.log("gameState", gameState);
   switch (gameState) {
-    case "UserAction":
+    case 0 as any:
       return "User Turn";
     case "AgentAction":
       return "Agent Turn";
