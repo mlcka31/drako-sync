@@ -171,8 +171,13 @@ func main() {
 
 	chatGPTClient := chatgpt.NewChatGPTClient(env.OPEN_AI_KEY, env.INIT_PROMPT, logger)
 
-	//accountManager, err := NewAccountManager("private_key.hex", env, logger)
-	accountManager, err := NewAccountManagerSecure("private_key.hex", logger)
+	var accountManager *AccountManager
+	if env.USE_STATIC_KEYS == "true" {
+		accountManager, err = NewAccountManager("private_key.hex", env, logger)
+	} else {
+		accountManager, err = NewAccountManagerSecure("private_key.hex", logger)
+	}
+
 	if err != nil {
 		logger.Fatal("Error creating account", zap.Error(err))
 	}
