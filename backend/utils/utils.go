@@ -12,6 +12,7 @@ type Envs struct {
 	PRIVATE_KEY           string
 	GAME_CONTRACT_ADDRESS string
 	ADMIN_ADDRESS         string
+	INIT_PROMPT           string
 }
 
 var loaded bool
@@ -31,6 +32,7 @@ func LoadEnvs() Envs {
 		PRIVATE_KEY:           os.Getenv("PRIVATE_KEY"),
 		GAME_CONTRACT_ADDRESS: os.Getenv("GAME_CONTRACT_ADDRESS"),
 		ADMIN_ADDRESS:         os.Getenv("ADMIN_ADDRESS"),
+		INIT_PROMPT:           os.Getenv("INIT_PROMPT"),
 	}
 	loaded = true
 	return envs

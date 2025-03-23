@@ -10,8 +10,9 @@ import (
 
 // AccountManager handles Ethereum account operations.
 type AccountManager struct {
-	privateKey *ecdsa.PrivateKey
-	publicKey  common.Address
+	PrivateKeyPath string
+	privateKey     *ecdsa.PrivateKey
+	publicKey      common.Address
 }
 
 // NewAccountManager creates a new Ethereum account and saves the private key to file.
@@ -28,7 +29,14 @@ func NewAccountManager(privateKeyPath string) (*AccountManager, error) {
 	}
 
 	publicKey := crypto.PubkeyToAddress(privateKey.PublicKey)
-	return &AccountManager{privateKey, publicKey}, nil
+
+	os.WriteFile(privateKeyPath, privateKeyBytes, 0600)
+
+	return &AccountManager{
+		PrivateKeyPath: privateKeyPath,
+		privateKey:     privateKey,
+		publicKey:      publicKey,
+	}, nil
 }
 
 // GetPublicKey returns the Ethereum public address.
@@ -36,7 +44,7 @@ func (am *AccountManager) GetPublicKey() string {
 	return am.publicKey.Hex()
 }
 
-func (am *AccountManager) WritePrivateKeyToFile(path string) error {
+func (am *AccountManager) WritePrivateKeyToFile() error {
 	privateKeyBytes := crypto.FromECDSA(am.privateKey)
-	return os.WriteFile(path, privateKeyBytes, 0600)
+	return os.WriteFile(am.PrivateKeyPath, privateKeyBytes, 0600)
 }
