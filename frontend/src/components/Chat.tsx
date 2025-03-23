@@ -102,13 +102,13 @@ const Chat: React.FC<ChatProps> = ({
         style={{ backgroundColor: "#07071666", borderRadius: "16px" }}
       >
         <div className="flex w-full items-center justify-between gap-4 pb-2">
-          <p className="text-[25px] text-white">
+          <p className="text-[14px] text-white md:text-[24px]">
             Prize: {convertWei(prizePool)}
           </p>
-          <p className="text-[25px] text-white">
+          <p className="text-[14px] text-white md:text-[24px]">
             Message price: {convertWei(messagePrice)}
           </p>
-          <p className="text-[25px] text-white">
+          <p className="text-[14px] text-white md:text-[24px]">
             Game State: {formatGameState(gameState)}
           </p>
         </div>

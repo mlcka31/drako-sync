@@ -12,6 +12,20 @@ contract AlephGameState {
     string public prompt;
     bool public promptSet;
 
+
+
+    function stopGameAndWithdraw() public onlyAdmin {
+        require(messages.length > 0, "No messages to check");
+        uint256 lastMessageTimestamp = messages[messages.length - 1].timestamp;
+        require(block.timestamp >= lastMessageTimestamp + 1 weeks, "Cannot stop game yet");
+
+        uint256 amountToWithdraw = prizePool;
+        prizePool = 0; // Reset prize pool before transferring
+        payable(adminAddress).transfer(amountToWithdraw);
+        gameState = GameState.Complete;
+        emit PrizePayout(msg.sender, amountToWithdraw);
+    }
+
     function setPrompt(string memory _prompt) public onlyAgent {
         require(!promptSet, "Prompt can only be set once");
         prompt = _prompt;
