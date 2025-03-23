@@ -94,7 +94,7 @@ func (bc *Blockchain) MonitorMessages() {
 	bc.logger.Info("MonitorMessages")
 
 	for {
-		stateInt, err := bc.Instance.GetGameState(&bind.CallOpts{})
+		stateInt, err := bc.Instance.GameState(&bind.CallOpts{})
 		state := parseGameState(stateInt)
 		if state != "AgentAction" {
 			time.Sleep(3 * time.Second)
@@ -190,45 +190,6 @@ func main() {
 	//blockchain.StartGame()
 	blockchain.MonitorMessages()
 	//blockchain.CheckWalletBalance()
-}
-
-func (bc *Blockchain) StartGame() {
-	tx, err := bc.Instance.SetAIAgentAddress(bc.Auth, bc.AiAgentAddress)
-	if err != nil {
-		bc.logger.Fatal("Failed to set AI agent address", zap.Error(err))
-	}
-	bc.logger.Info("Set AI Agent address TX", zap.String("tx", tx.Hash().Hex()))
-
-	tx, err = bc.Instance.InitGame(bc.Auth, bc.AiAgentAddress)
-	if err != nil {
-		bc.logger.Fatal("Failed to initialize game", zap.Error(err))
-	}
-	bc.logger.Info("Game initialized TX", zap.String("tx", tx.Hash().Hex()))
-
-	messageContent := "Hello, AI!"
-	msgPrice, err := bc.Instance.GetmessagePrice(&bind.CallOpts{})
-	if err != nil {
-		bc.logger.Fatal("Failed to fetch message price", zap.Error(err))
-	}
-
-	bc.Auth.Value = msgPrice
-	tx, err = bc.Instance.SendMessage(bc.Auth, messageContent)
-	if err != nil {
-		bc.logger.Fatal("Failed to send message", zap.Error(err))
-	}
-	bc.logger.Info("Message sent TX", zap.String("tx", tx.Hash().Hex()))
-
-	state, err := bc.Instance.GetGameState(&bind.CallOpts{})
-	if err != nil {
-		bc.logger.Fatal("Failed to retrieve game state", zap.Error(err))
-	}
-	bc.logger.Info("Current Game State", zap.String("state", parseGameState(state)))
-
-	prizePool, err := bc.Instance.GetPrizePool(&bind.CallOpts{})
-	if err != nil {
-		bc.logger.Fatal("Failed to retrieve prize pool", zap.Error(err))
-	}
-	bc.logger.Info("Current Prize Pool", zap.String("prizePool", prizePool.String()))
 }
 
 func (bc *Blockchain) DeployContract() {
