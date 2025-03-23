@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { GameState } from "~/types/GameState";
 
@@ -26,7 +26,7 @@ const formatGameState = (gameState: keyof typeof GameState) => {
 
 interface ChatProps {
   messages: Message[];
-  onSendMessage?: (message: string) => void;
+  onSendMessage: (message: string) => void;
   className?: string;
   isDisabled?: boolean;
   prizePool: string;
@@ -43,22 +43,30 @@ const Chat: React.FC<ChatProps> = ({
   messagePrice,
   gameState,
 }) => {
-  const [inputValue, setInputValue] = React.useState("");
+  const [input, setInput] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputValue.trim() && onSendMessage) {
-      onSendMessage(inputValue);
-      setInputValue("");
+    if (input.trim()) {
+      onSendMessage(input);
+      setInput("");
     }
   };
 
   return (
     <div
-      className={`flex flex-col rounded-lg shadow-md ${className || "h-full"} h-[80vh] flex-grow`}
+      className={`flex flex-col rounded-lg shadow-md ${className || "h-full"} overflow-hidden`}
     >
-      {/* Chat messages */}
-      <div className="h-full w-full flex-1 flex-grow space-y-4 overflow-y-auto p-4">
+      <div className="flex-1 space-y-4 overflow-y-auto p-4">
         {messages.map((message) => (
           <div
             key={message.id}
@@ -85,33 +93,38 @@ const Chat: React.FC<ChatProps> = ({
             </div>
           </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
 
-      {/* Input area - now with sticky positioning */}
       <div
-        className="absolute bottom-0 left-1/2 w-full max-w-[800px] -translate-x-1/2 transform p-4"
+        className="p-4"
         style={{ backgroundColor: "#07071666", borderRadius: "16px" }}
       >
-        <div className="flex w-full items-center justify-between gap-4">
-          <p className="text-white">Prize: {prizePool}</p>
-          <p className="text-white">Message price: {messagePrice}</p>
-          <p className="text-white">Game State: {formatGameState(gameState)}</p>
+        <div className="flex w-full items-center justify-between gap-4 pb-2">
+          <p className="text-[25px] text-white">Prize: {prizePool}</p>
+          <p className="text-[25px] text-white">
+            Message price: {messagePrice}
+          </p>
+          <p className="text-[25px] text-white">
+            Game State: {formatGameState(gameState)}
+          </p>
         </div>
         <form onSubmit={handleSubmit} className="flex items-center">
           <input
             type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
             placeholder="Type a message..."
             className="flex-1 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             style={{
               backgroundColor: "#F7F9FB0D",
               borderRadius: "16px",
             }}
+            disabled={isDisabled}
           />
           <button
             type="submit"
-            disabled={!inputValue.trim() || isDisabled}
+            disabled={!input.trim() || isDisabled}
             className="ml-2 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
           >
             <Image
