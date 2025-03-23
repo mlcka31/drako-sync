@@ -15,11 +15,10 @@ import (
 	"log"
 	"math/big"
 	"os"
-	"strings"
 	"time"
 )
 
-type Blockchain struct {
+type Main struct {
 	Client              *ethclient.Client
 	Auth                *bind.TransactOpts
 	ChainID             *big.Int
@@ -35,8 +34,8 @@ type Blockchain struct {
 	ChatGPTClient  chatgpt.ChatGPTClient
 }
 
-func NewBlockchain(logger *zap.Logger, chatGPTClient chatgpt.ChatGPTClient, accountManager *AccountManager, server *Server) *Blockchain {
-	logger.Info("NewBlockchain")
+func NewMain(logger *zap.Logger, chatGPTClient chatgpt.ChatGPTClient, accountManager *AccountManager, server *Server) *Main {
+	logger.Info("NewMain")
 	env := utils.LoadEnvs()
 
 	client, err := ethclient.Dial(env.RPC_URL)
@@ -75,7 +74,7 @@ func NewBlockchain(logger *zap.Logger, chatGPTClient chatgpt.ChatGPTClient, acco
 
 	chatGPTClient.SetAIAddress(env.ADMIN_ADDRESS)
 
-	return &Blockchain{
+	return &Main{
 		Client:              client,
 		Auth:                auth,
 		ChainID:             chainID,
@@ -90,7 +89,7 @@ func NewBlockchain(logger *zap.Logger, chatGPTClient chatgpt.ChatGPTClient, acco
 	}
 }
 
-func (bc *Blockchain) MonitorMessages() {
+func (bc *Main) MonitorMessages() {
 	bc.logger.Info("MonitorMessages")
 
 	for {
@@ -111,13 +110,8 @@ func (bc *Blockchain) MonitorMessages() {
 
 		// Extract content from each message
 		last10Messages := takeAtMax10(messages)
-		//messageContents := make([]string, len(last10Messages))
-		//for i, msg := range messages {
-		//	messageContents[i] = msg.Content
-		//}
 
 		// Send all messages to ChatGPT in a single request
-		//bc.logger.Debug("Sending messages to ChatGPT", zap.Strings("messages", messageContents))
 		chatResponse, err := bc.ChatGPTClient.SendAllMessages(context.Background(), last10Messages)
 		if err != nil {
 			bc.logger.Error("Failed to send messages to ChatGPT", zap.Error(err))
@@ -126,9 +120,9 @@ func (bc *Blockchain) MonitorMessages() {
 		}
 
 		// Process ChatGPT's response
-		bc.logger.Info("ChatGPT response", zap.String("response", chatResponse))
+		bc.logger.Info("ChatGPT response", zap.Any("response", chatResponse))
 
-		if strings.Contains(chatResponse, "success") {
+		if chatResponse.IsSuccess {
 			tx, err := bc.Instance.PayoutPrize(bc.Auth)
 			if err != nil {
 				bc.logger.Error("Failed to PayoutPrize", zap.Error(err))
@@ -139,7 +133,7 @@ func (bc *Blockchain) MonitorMessages() {
 		}
 
 		// Optionally, call the smart contract's reply function with the ChatGPT response
-		tx, err := bc.Instance.Reply(bc.Auth, chatResponse)
+		tx, err := bc.Instance.Reply(bc.Auth, chatResponse.Content)
 		if err != nil {
 			bc.logger.Error("Failed to call reply function", zap.Error(err))
 			continue
@@ -151,8 +145,8 @@ func (bc *Blockchain) MonitorMessages() {
 	}
 }
 
-// CheckWalletBalance retrieves and prints the balance of the wallet associated with the Blockchain instance
-func (bc *Blockchain) CheckWalletBalance() {
+// CheckWalletBalance retrieves and prints the balance of the wallet associated with the Main instance
+func (bc *Main) CheckWalletBalance() {
 	// Retrieve the wallet address from the Auth field
 	walletAddress := bc.Auth.From
 
@@ -177,39 +171,20 @@ func main() {
 
 	chatGPTClient := chatgpt.NewChatGPTClient(env.OPEN_AI_KEY, env.INIT_PROMPT, logger)
 
-	accountManager, err := NewAccountManager("private_key.hex")
+	accountManager, err := NewAccountManager("private_key.hex", env, logger)
+	//accountManager, err := NewAccountManagerSecure("private_key.hex", logger)
 	if err != nil {
 		logger.Fatal("Error creating account", zap.Error(err))
 	}
+	pubKey := accountManager.GetPublicKey()
 
 	server := NewServer("zk-dungeon", logger)
-	go server.Run("localhost:8080")
+	server.SetPublicKey(pubKey)
 
-	blockchain := NewBlockchain(logger, *chatGPTClient, accountManager, server)
-	//blockchain.DeployContract()
-	//blockchain.StartGame()
+	go server.Run(env.WEB_HOST + ":" + env.WEB_PORT)
+
+	blockchain := NewMain(logger, *chatGPTClient, accountManager, server)
 	blockchain.MonitorMessages()
-	//blockchain.CheckWalletBalance()
-}
-
-func (bc *Blockchain) DeployContract() {
-	address, tx, instance, err := contract.DeployContract(bc.Auth, bc.Client, bc.InitialMessagePrice, bc.CoeffIncrease)
-	if err != nil {
-		bc.logger.Fatal("Failed to deploy contract", zap.Error(err))
-	}
-
-	//fmt.Printf("Contract deployed at: %s\n", address.Hex())
-	//fmt.Printf("Transaction hash: %s\n", tx.Hash().Hex())
-	bc.logger.Info("Contract deployed", zap.String("address", address.Hex()))
-	bc.logger.Info("Transaction hash", zap.String("tx", tx.Hash().Hex()))
-
-	_, err = bind.WaitDeployed(context.Background(), bc.Client, tx)
-	if err != nil {
-		bc.logger.Fatal("Failed to confirm contract deployment", zap.Error(err))
-	}
-
-	bc.ContractAddress = address
-	bc.Instance = instance
 }
 
 func setupLogger() (*zap.Logger, error) {
