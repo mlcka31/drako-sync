@@ -106,6 +106,13 @@ export const AlephGameStateAbi = [
   },
   {
     inputs: [],
+    name: "abort",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "adminAddress",
     outputs: [
       {
@@ -158,32 +165,6 @@ export const AlephGameStateAbi = [
   },
   {
     inputs: [],
-    name: "getCoeffIncrease",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getGameState",
-    outputs: [
-      {
-        internalType: "enum AlephGameState.GameState",
-        name: "",
-        type: "uint8",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "getMessages",
     outputs: [
       {
@@ -218,45 +199,6 @@ export const AlephGameStateAbi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "getPrecision",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "pure",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getPrizePool",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getmessagePrice",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "address",
@@ -265,6 +207,7 @@ export const AlephGameStateAbi = [
       },
     ],
     name: "initGame",
+
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -337,6 +280,32 @@ export const AlephGameStateAbi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "prompt",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "promptSet",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "string",
@@ -365,77 +334,12 @@ export const AlephGameStateAbi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_aiAgentAddress",
-        type: "address",
+        internalType: "string",
+        name: "_prompt",
+        type: "string",
       },
     ],
-    name: "setAIAgentAddress",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_adminAddress",
-        type: "address",
-      },
-    ],
-    name: "setAdminAddress",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_coeffIncrease",
-        type: "uint256",
-      },
-    ],
-    name: "setCoeffIncrease",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "enum AlephGameState.GameState",
-        name: "_gameState",
-        type: "uint8",
-      },
-    ],
-    name: "setGameState",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_prizePool",
-        type: "uint256",
-      },
-    ],
-    name: "setPrizePool",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_messagePrice",
-        type: "uint256",
-      },
-    ],
-    name: "setmessagePrice",
+    name: "setPrompt",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
