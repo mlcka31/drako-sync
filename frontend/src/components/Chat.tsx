@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { GameState } from "~/types/GameState";
+import { convertWei } from "~/utils/convertWei";
 
 // Define the message type
 export interface Message {
@@ -101,9 +102,11 @@ const Chat: React.FC<ChatProps> = ({
         style={{ backgroundColor: "#07071666", borderRadius: "16px" }}
       >
         <div className="flex w-full items-center justify-between gap-4 pb-2">
-          <p className="text-[25px] text-white">Prize: {prizePool}</p>
           <p className="text-[25px] text-white">
-            Message price: {messagePrice}
+            Prize: {convertWei(prizePool)}
+          </p>
+          <p className="text-[25px] text-white">
+            Message price: {convertWei(messagePrice)}
           </p>
           <p className="text-[25px] text-white">
             Game State: {formatGameState(gameState)}
