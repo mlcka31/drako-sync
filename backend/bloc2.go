@@ -164,7 +164,9 @@ func (bc *Blockchain) MonitorMessages() {
 		}
 
 		// Send all messages to ChatGPT in a single request
-		chatResponse, err := bc.ChatGPTClient.SendAllMessages(context.Background(), messageContents)
+		last10Messages := takeAtMax10Messages(messageContents)
+		bc.logger.Info("Sending messages to ChatGPT", zap.Strings("messages", last10Messages))
+		chatResponse, err := bc.ChatGPTClient.SendAllMessages(context.Background(), last10Messages)
 		if err != nil {
 			bc.logger.Error("Failed to send messages to ChatGPT", zap.Error(err))
 			time.Sleep(1 * time.Second)
@@ -197,6 +199,14 @@ func (bc *Blockchain) MonitorMessages() {
 	}
 }
 
+func takeAtMax10Messages(messageContents []string) []string {
+	last10Messages := messageContents
+	if len(messageContents) > 10 {
+		last10Messages = messageContents[len(messageContents)-10:]
+	}
+	return last10Messages
+}
+
 // CheckWalletBalance retrieves and prints the balance of the wallet associated with the Blockchain instance
 func (bc *Blockchain) CheckWalletBalance() {
 	// Retrieve the wallet address from the Auth field
@@ -226,7 +236,6 @@ func main() {
 	accountManager, err := NewAccountManager("private_key.hex")
 	if err != nil {
 		logger.Fatal("Error creating account", zap.Error(err))
-		//log.Fatalf("Error creating account: %v", err)
 	}
 
 	server := NewServer("serv1", logger)

@@ -17,18 +17,21 @@ type Config struct {
 
 // ChatGPTClient wraps the OpenAI client
 type ChatGPTClient struct {
-	client openai.Client
+	client     openai.Client
+	initPrompt string
 }
 
 // NewChatGPTClient creates a new ChatGPT client with the given API key
 func NewChatGPTClient(apiKey string) *ChatGPTClient {
+	initPrompt := "Has the last message in this array killed the dragon? If yes - return 'success', if no - return 'fail'."
 	return &ChatGPTClient{
-		client: openai.NewClient(option.WithAPIKey(apiKey), option.WithBaseURL("https://api.openai.com/v1")),
+		initPrompt: initPrompt,
+		client:     openai.NewClient(option.WithAPIKey(apiKey), option.WithBaseURL("https://api.openai.com/v1")),
 	}
 }
 
 func (c *ChatGPTClient) SendAllMessages(ctx context.Context, allMessages []string) (string, error) {
-	prompt := fmt.Sprintf("Has the last message in this array killed the dragon? If yes - return 'success', if no - return 'fail'. '%s'", MarshalArrayToJSON(allMessages))
+	prompt := fmt.Sprintf(c.initPrompt+" '%s'", MarshalArrayToJSON(allMessages))
 	resp, err := c.client.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{
 		Messages: []openai.ChatCompletionMessageParamUnion{
 			openai.UserMessage(prompt),
@@ -63,4 +66,12 @@ func GetMessageFromFile(configFile string) (Config, error) {
 func MarshalArrayToJSON(array []string) string {
 	jsonData, _ := json.Marshal(array)
 	return string(jsonData)
+}
+
+func ReadPromptFromFile(filePath string) (string, error) {
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return "", fmt.Errorf("failed to read prompt file: %w", err)
+	}
+	return string(data), nil
 }
