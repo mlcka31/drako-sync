@@ -1,1 +1,6 @@
 cache/
+**/node_modules/
+**/.next/
+back2/
+example/
+private_key.hex
