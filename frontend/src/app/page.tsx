@@ -33,18 +33,15 @@ export default function HomePage() {
       return;
     }
     if (!messagePrice) {
-      // toast.error("Message price is not set");
       return;
     }
     sendMessage(message, utils.formatEther(messagePrice));
   };
   let isDisabled = isLoading || gameState !== GameState.UserAction;
-  console.log(address);
-  console.log(isDisabled);
+
   if (address == undefined) {
     isDisabled = false;
   }
-  console.log(isDisabled);
 
   return (
     <main className="flex h-full w-full flex-col items-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
@@ -65,7 +62,6 @@ export default function HomePage() {
       ) : (
         <div className="flex h-full flex-col">
           <Navbar />
-          {/* <main className="z-100 relative flex h-full flex-1 overflow-hidden"> */}
           <Chat
             prizePool={prizePool?.toString() || "0"}
             messagePrice={messagePrice?.toString() || "0"}
@@ -82,7 +78,6 @@ export default function HomePage() {
             className="z-100 relative mt-[100px] flex h-[calc(100dvh-100px)] w-full flex-grow overflow-hidden"
             isDisabled={isDisabled}
           />
-          {/* </main> */}
         </div>
       )}
     </main>
