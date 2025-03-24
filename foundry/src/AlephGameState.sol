@@ -16,6 +16,8 @@ contract AlephGameState {
         require(messages.length > 0, "No messages to check");
         uint256 lastMessageTimestamp = messages[messages.length - 1].timestamp;
         require(block.timestamp >= lastMessageTimestamp + 1 weeks, "Cannot stop game yet");
+        // handles the case when the agent didn't reply 
+        require(messages[messages.length - 1].sender == aiAgentAddress, "Game stops only if the last message was sent by an agent");
 
         uint256 amountToWithdraw = prizePool;
         prizePool = 0; // Reset prize pool before transferring
