@@ -49,8 +49,8 @@ export default function HomePage() {
   return (
     <main className="flex h-full w-full flex-col items-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
       {!isStarted ? (
-        <div className="container z-10 mt-[100px] flex h-[90vh] flex-col items-center justify-center gap-12 px-4 py-16">
-          <Logo className="h-20 w-full" />
+        <div className="container z-10 flex h-full flex-col items-center justify-center gap-12 px-4 py-16">
+          <Logo className="mt-[30%] h-20 w-full" />
           <div className="z-50 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
             <button
               className="h-[80px] w-full bg-transparent text-[32px] md:text-[80px]"
@@ -63,26 +63,26 @@ export default function HomePage() {
           </div>
         </div>
       ) : (
-        <div className="flex h-screen flex-col">
+        <div className="flex h-full flex-col">
           <Navbar />
-          <main className="z-100 relative flex-1 overflow-hidden">
-            <Chat
-              prizePool={prizePool?.toString() || "0"}
-              messagePrice={messagePrice?.toString() || "0"}
-              gameState={gameState as keyof typeof GameState}
-              messages={
-                messages?.map((item, index) => ({
-                  id: item.timestamp.toString(),
-                  content: item.content,
-                  role: item.sender === agentAddress ? "assistant" : "user",
-                  timestamp: new Date(Number(item.timestamp)),
-                })) || []
-              }
-              onSendMessage={handleSendMessage}
-              className="h-full w-full"
-              isDisabled={isDisabled}
-            />
-          </main>
+          {/* <main className="z-100 relative flex h-full flex-1 overflow-hidden"> */}
+          <Chat
+            prizePool={prizePool?.toString() || "0"}
+            messagePrice={messagePrice?.toString() || "0"}
+            gameState={gameState as keyof typeof GameState}
+            messages={
+              messages?.map((item, index) => ({
+                id: item.timestamp.toString(),
+                content: item.content,
+                role: item.sender === agentAddress ? "assistant" : "user",
+                timestamp: new Date(Number(item.timestamp)),
+              })) || []
+            }
+            onSendMessage={handleSendMessage}
+            className="z-100 relative mt-[100px] flex h-[calc(100dvh-100px)] w-full flex-grow overflow-hidden"
+            isDisabled={isDisabled}
+          />
+          {/* </main> */}
         </div>
       )}
     </main>
