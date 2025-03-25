@@ -1,0 +1,29 @@
+{
+  "name": "backend-2",
+  "version": "1.0.0",
+  "description": "Backend rewritten in TypeScript with Fastify",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "typechain": "typechain --target ethers-v6 --out-dir src/typechain --extract-types",
+    "dev": "dotenv -e .env -- ts-node-dev --respawn src/server.ts"
+  },
+  "dependencies": {
+    "@fastify/cors": "^8.3.0",
+    "@typechain/ethers-v5": "^11.1.2",
+    "@typechain/ethers-v6": "^0.5.1",
+    "@types/elliptic": "^6.4.18",
+    "dotenv": "^16.0.3",
+    "elliptic": "^6.6.1",
+    "ethers": "^6.13.5",
+    "fastify": "^4.21.0",
+    "openai": "^4.0.0",
+    "typechain": "^8.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.5.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.1.6"
+  }
+}
