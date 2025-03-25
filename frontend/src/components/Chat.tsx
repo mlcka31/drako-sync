@@ -71,7 +71,7 @@ const Chat: React.FC<ChatProps> = ({
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+            className={`flex ${message.role === "user" ? "justify-end" : "justify-start"} font-geist`}
           >
             <div
               className={`max-w-[80%] rounded-lg p-3 ${

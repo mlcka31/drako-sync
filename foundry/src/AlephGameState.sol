@@ -9,21 +9,27 @@ contract AlephGameState {
         Complete,
         NotStarted
     }
+
     string public prompt;
     bool public promptSet;
 
-    function stopGameAndWithdraw() public onlyAdmin {
+    function stopGameAndWithdraw() public onlyAdmin payable returns (bool) {
         require(messages.length > 0, "No messages to check");
         uint256 lastMessageTimestamp = messages[messages.length - 1].timestamp;
         require(block.timestamp >= lastMessageTimestamp + 1 weeks, "Cannot stop game yet");
-        // handles the case when the agent didn't reply 
-        require(messages[messages.length - 1].sender == aiAgentAddress, "Game stops only if the last message was sent by an agent");
+        // handles the case when the agent didn't reply
+        require(
+            messages[messages.length - 1].sender == aiAgentAddress,
+            "Game stops only if the last message was sent by an agent"
+        );
 
         uint256 amountToWithdraw = prizePool;
-        prizePool = 0; // Reset prize pool before transferring
-        payable(adminAddress).transfer(amountToWithdraw);
+        (bool success, ) = payable(adminAddress).call{value: amountToWithdraw}("");
+        require(success, "Transfer failed");
+        prizePool = 0;
         gameState = GameState.Complete;
         emit PrizePayout(msg.sender, amountToWithdraw);
+        return true;
     }
 
     function setPrompt(string memory _prompt) public onlyAgent {
@@ -69,7 +75,7 @@ contract AlephGameState {
         _;
     }
 
-    modifier onlyAgent(){
+    modifier onlyAgent() {
         require(msg.sender == aiAgentAddress, "Only agent can call this function");
         _;
     }
