@@ -1,0 +1,30 @@
+services:
+  backend:
+    command:
+      - /bin/sh
+      - -c
+      - |-
+        cd /app
+        echo 
+        yarn start
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: mlcka3i/drako-sync:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=${PORT}
+      - HOST=${HOST}
+      - RPC_URL=${RPC_URL}
+      - CONTRACT_ADDRESS=${CONTRACT_ADDRESS}
+      - POLLING_INTERVAL=${POLLING_INTERVAL}
+      - OPENAI_MODEL=${OPENAI_MODEL}
+      - OPEN_AI_KEY=${OPEN_AI_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - SYSTEM_PROMPT=${SYSTEM_PROMPT}
+    volumes:
+      - /var/run/tappd.sock:/var/run/tappd.sock
+    restart: unless-stopped
+volumes:
+  tee:
